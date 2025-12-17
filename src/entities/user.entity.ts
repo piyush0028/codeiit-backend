@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, BeforeInsert } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 
 @Entity('users')
 export class User {
@@ -9,7 +10,7 @@ export class User {
   iitk_email: string;
 
   @Column({ nullable: true })
-  verification_token: string;
+  verification_token: string; // Just 'string' here, nullable is handled by database
 
   @Column({ default: false })
   iitk_verified: boolean;
@@ -34,4 +35,15 @@ export class User {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @BeforeInsert()
+  async hashPassword() {
+    if (this.password_hash) {
+      this.password_hash = await bcrypt.hash(this.password_hash, 12);
+    }
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password_hash);
+  }
 }

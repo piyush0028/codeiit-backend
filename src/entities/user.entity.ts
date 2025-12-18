@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, BeforeInsert } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { OneToMany } from 'typeorm';
+import { Submission } from './submission.entity';
 
 @Entity('users')
 export class User {
@@ -36,11 +38,17 @@ export class User {
   @CreateDateColumn()
   created_at: Date;
 
+  
+  @OneToMany(() => Submission, submission => submission.user)
+  submissions: Submission[];
+
   @BeforeInsert()
   async hashPassword() {
     if (this.password_hash) {
       this.password_hash = await bcrypt.hash(this.password_hash, 12);
     }
+
+  
   }
 
   async validatePassword(password: string): Promise<boolean> {

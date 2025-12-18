@@ -1,4 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { OneToMany } from 'typeorm';
+import { Submission } from './submission.entity';
 
 @Entity('problems')
 export class Problem {
@@ -31,4 +33,7 @@ export class Problem {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @OneToMany(() => Submission, submission => submission.problem)
+  submissions: Submission[];
 }
